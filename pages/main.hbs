@@ -27,7 +27,7 @@
                 <div class="col-lg-12">
                     <h1>
                     <img src='youi.png' alt="youi" width='70' height='70' alt="You i"/>
-                    Analytics Testing Tool
+                    Analytics Testing Tool 
                     </h1>
                 </div>
             </div>
@@ -41,7 +41,7 @@
                 </div>
             </div>
             <div class="col-lg-12">
-                <textarea id="Analytics" disabled rows="4" cols="50" style="margin: 0px -15px; width: 705px; height: 450px; resize: none">{{{body}}}
+                <textarea id="Analytics" rows="4" cols="50" style="margin: 0px -15px; width: 705px; height: 450px; resize: none">{{{body}}}
                 </textarea>
             </div>
             <button type="button" onclick="reload()">Refresh</button>
@@ -50,5 +50,20 @@
 <script> function reload(){
     window.location.reload(true);
 }
+</script>
+
+<script>
+    var ws = new WebSocket('ws://localhost:40510');
+    // event emmited when connected
+    ws.onopen = function () {
+        console.log('websocket is connected ...')
+        // sending a send event to websocket server
+        ws.send('connected')
+    }
+    // event emmited when receiving message 
+    ws.onmessage = function (ev) {
+        console.log(ev);
+        document.getElementById("Analytics").textContent = ev.data;
+    }
 </script>
 </html>
