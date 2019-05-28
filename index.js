@@ -28,11 +28,11 @@ app.use(express.static(__dirname + "/images"));
 
 app.post("/*", function(request, response) {
   console.log(JSON.stringify(request.body).replace(",", "<br>"));
-
   analytics = JSON.stringify(request.body)
     .split(",")
     .join("\n");
   array.push(analytics);
+  response.send('OK');
 });
 
 app.post("/trutv/xboxone/adobe", function(request, response) {
