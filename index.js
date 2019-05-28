@@ -8,6 +8,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 var analytics;
 var array = [];
+var expressWs = require('express-ws')(app);
 app.engine(
   ".hbs",
   exphbs({
@@ -33,7 +34,12 @@ app.post("/*", function(request, response) {
     .join("\n");
   array.push(analytics);
   response.send('OK');
+  web.send(analytics);
 });
+
+function setWS(ws){
+  web = ws;
+}
 
 app.post("/trutv/xboxone/adobe", function(request, response) {
   //console.log(response);
@@ -41,6 +47,7 @@ app.post("/trutv/xboxone/adobe", function(request, response) {
   analytics = JSON.stringify(request.body)
     .split(",")
     .join("\n");
+  ws.send(analytics); //TODO need to add check that websocket is active
 });
 
 app.listen(port, err => {
@@ -50,27 +57,18 @@ app.listen(port, err => {
   console.log(`server is listening on ${port}`);
 });
 
-/*
-const http = require("http");
-
-const hostname = "0.0.0.0";
-const port = 3000;
-
-const server = http.createServer((req, res) => {
-  console.log(`\n${req.method} ${req.url}`);
-  console.log(req.headers);
-  var chunky = "";
-  req.on("data", function(chunk) {
-    console.log("BODY: " + chunk);
-    chunky = chunk;
-  });
+var WebSocketServer = require('ws').Server,
+  wss = new WebSocketServer({port: 40510})
+wss.on('connection', function (ws) {
+  ws.on('message', function (message) {
+    console.log('received: %s', message)
+  })
+  setWS(ws);
+  /*
+  setInterval(
+    () => ws.send(analytics),
+    1000
+  )
+  */
   
-  res.statusCode = 200;
-  res.setHeader("Content-Type", "text/plain");
-  res.end("Hello World\n" + chunky);
-});
-
-server.listen(port, hostname, () => {
-  console.log(`Server running at http://localhost:${port}/`);
-});
-*/
+})
