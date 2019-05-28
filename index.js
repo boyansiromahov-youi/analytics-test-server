@@ -24,8 +24,8 @@ app.get('/', (request, response) => {
 
 app.post('/*',function(request,response){
   //console.log(response);
-  console.log(JSON.stringify(request.body));
-  analytics = JSON.stringify(request.body);
+  console.log(JSON.stringify(request.body).replace(",","<br>"));
+  analytics = JSON.stringify(request.body).split(',').join('\n');
 });
 
 
