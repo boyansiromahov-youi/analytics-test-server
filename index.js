@@ -22,6 +22,7 @@ app.get("/", (request, response) => {
     name: analytics
   });
 });
+app.use(express.static(__dirname + '/images'));
 
 app.post("/*", function(request, response) {
   //console.log(response);
