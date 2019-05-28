@@ -7,6 +7,7 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 var analytics;
+var array = [];
 app.engine(
   ".hbs",
   exphbs({
@@ -15,18 +16,28 @@ app.engine(
     layoutsDir: path.join(__dirname, "pages")
   })
 );
+
 app.set("view engine", ".hbs");
 app.set("views", path.join(__dirname, "pages"));
 app.get("/", (request, response) => {
   response.render("home", {
-    name: analytics
+    name: array
   });
 });
-app.use(express.static(__dirname + '/images'));
+app.use(express.static(__dirname + "/images"));
 
 app.post("/*", function(request, response) {
+  console.log(JSON.stringify(request.body).replace(",", "<br>"));
+
+  analytics = JSON.stringify(request.body)
+    .split(",")
+    .join("\n");
+  array.push(analytics);
+});
+
+app.post("/trutv/xboxone/adobe", function(request, response) {
   //console.log(response);
-  console.log(JSON.stringify(request.body).replace("," , "<br>"));
+  console.log(JSON.stringify(request.body).replace(",", "<br>"));
   analytics = JSON.stringify(request.body)
     .split(",")
     .join("\n");
