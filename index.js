@@ -22,7 +22,8 @@ app.set("view engine", ".hbs");
 app.set("views", path.join(__dirname, "pages"));
 app.get("/", (request, response) => {
   response.render("home", {
-    name: array
+    analytics: array,
+    appium: <var>
   });
 });
 app.use(express.static(__dirname + "/images"));
