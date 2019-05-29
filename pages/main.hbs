@@ -26,8 +26,8 @@
             <div class="row">
                 <div class="col-lg-12">
                     <h1>
-                    <img src='youi.png' alt="youi" width='70' height='70' alt="You i"/>
-                    Analytics Testing Tool 
+                        <img src='youi.png' alt="youi" width='70' height='70' alt="You i"/>
+                        Analytics Testing Tool 
                     </h1>
                 </div>
             </div>
@@ -39,7 +39,7 @@
                         </div>
                         <select id="selector" style="margin: 5px 0px" onchange="anaSelected()">
                             {{#each calls}}
-                            <option>{{@key}}</option>
+                                <option>{{@key}}</option>
                             {{/each}}
                         </select>
                     </div>
@@ -49,22 +49,24 @@
                 <textarea id="Analytics" rows="4" cols="50" style="margin: 0px -15px; width: 705px; height: 450px; resize: none">
                 </textarea>
             </div>
-            <button type="button" onclick="reload()">Refresh</button>
+            <label class="switch">
+                Live update
+                <input type="checkbox" onclick="pause()">
+                <span class="slider round">Pause</span>
+            </label>
     </div>  
 </body>
-<script> function reload(){
-    window.location.reload(true);
-}
-</script>
 <script>
+    //User has selected a analytic call from the drop down.
     function anaSelected(){
         var index = document.getElementById("selector").selectedIndex;
         var opt = document.getElementById("selector").options[index];
         ws.send('command/select/' + opt.text);
         console.log(opt);
     }
-</script>
-<script>
+    function pause(){
+        ws.send('command/radio')
+    }
     var ws = new WebSocket('ws://localhost:40510');
     // event emmited when connected
     ws.onopen = function () {
@@ -75,13 +77,18 @@
     // event emmited when receiving message 
     ws.onmessage = function (ev) {
         console.log(ev);
+        //server lets us know that new data came in and we need to refresh the page
         if(ev.data == "Data"){
             window.location.reload(true);
             console.log("New Data recieved");
         }
+        //sever lets us know that text field needs to be updated
         else if(ev.data.includes("txt/")){
             var str = ev.data.replace("txt/" , '');
             document.getElementById("Analytics").textContent = str;
+        }
+        else{
+            console.log('Unkown command: ' + ev.data);
         }
     }
 </script>
