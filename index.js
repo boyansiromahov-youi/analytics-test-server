@@ -7,7 +7,8 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 var analytics;
-var array = [];
+var n = 0;
+var callsDict = {};
 var expressWs = require('express-ws')(app);
 app.engine(
   ".hbs",
@@ -22,8 +23,9 @@ app.set("view engine", ".hbs");
 app.set("views", path.join(__dirname, "pages"));
 app.get("/", (request, response) => {
   response.render("home", {
-    name: array
+    calls: callsDict
   });
+
 });
 app.use(express.static(__dirname + "/images"));
 
@@ -32,9 +34,10 @@ app.post("/*", function(request, response) {
   analytics = JSON.stringify(request.body)
     .split(",")
     .join("\n");
-  array.push(analytics);
+  n++;
+  callsDict[n] = analytics;
   response.send('OK');
-  web.send(analytics);
+  web.send("txt/" + analytics);
 });
 
 function setWS(ws){
@@ -47,7 +50,7 @@ app.post("/trutv/xboxone/adobe", function(request, response) {
   analytics = JSON.stringify(request.body)
     .split(",")
     .join("\n");
-  ws.send(analytics); //TODO need to add check that websocket is active
+//TODO need to add check that websocket is active
 });
 
 app.listen(port, err => {
@@ -61,7 +64,11 @@ var WebSocketServer = require('ws').Server,
   wss = new WebSocketServer({port: 40510})
 wss.on('connection', function (ws) {
   ws.on('message', function (message) {
-    console.log('received: %s', message)
+    console.log('received: %s', message);
+    if (message.includes('command')) {
+      parseCommand(message);
+    } 
+    
   })
   setWS(ws);
   /*
@@ -70,5 +77,12 @@ wss.on('connection', function (ws) {
     1000
   )
   */
-  
 })
+
+function parseCommand(cmnd){
+  var words = cmnd.split("/");
+  if (words[1] == 'select'){
+    var analytics = callsDict[parseInt(words[2])];
+    web.send("txt/" + analytics);
+  }
+}
