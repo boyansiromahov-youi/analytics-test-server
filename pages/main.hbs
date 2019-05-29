@@ -57,6 +57,7 @@
     </div>  
 </body>
 <script>
+    var paused = false;
     //User has selected a analytic call from the drop down.
     function anaSelected(){
         var index = document.getElementById("selector").selectedIndex;
@@ -65,7 +66,15 @@
         console.log(opt);
     }
     function pause(){
+        paused = !paused;
         ws.send('command/radio')
+        if (paused){
+            document.getElementById("selector").style.visibility = 'hidden'
+        }else
+        {
+            document.getElementById("selector").style.visibility = 'visible'
+        }
+        
     }
     var ws = new WebSocket('ws://localhost:40510');
     // event emmited when connected
