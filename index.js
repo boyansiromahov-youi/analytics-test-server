@@ -107,7 +107,14 @@ function parseCommand(cmnd){
       web.send(str);
     }
   }else if (words[1] == 'exportAll'){
-
+    var data = '';
+    for (var key in callsDict){
+      data += callsDict[key] + '\n \n \n \n';
+    }
+    fs.writeFile('exports/export.txt', data, (err) => { 
+      // In case of a error throw err. 
+      if (err) throw err; 
+    });
   }else if (words[1] == 'exportCur'){
     var data;
     if(!paused){
