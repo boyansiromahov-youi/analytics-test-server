@@ -32,10 +32,11 @@ app.get("/", (request, response) => {
 });
 
 app.use(express.static(__dirname + "/images"));
+app.use(express.static(__dirname + "/pages"));
 
 //post event handler
 app.post("/*", function(request, response) {
-  console.log(JSON.stringify(request.body).replace(",", "<br>"));
+  //console.log(JSON.stringify(request.body).replace(",", "<br>"));
   analytics = JSON.stringify(request.body)
     .split(",")
     .join("\n");
@@ -71,7 +72,7 @@ var WebSocketServer = require('ws').Server,
   wss = new WebSocketServer({port: 40510})
 wss.on('connection', function (ws) {
   ws.on('message', function (message) {
-    console.log('received: %s', message);
+    //console.log('received: %s', message);
     if (message.includes('command')) {
       parseCommand(message);
     } 
@@ -87,6 +88,7 @@ wss.on('connection', function (ws) {
 })
 
 function parseCommand(cmnd){
+  var keyArray = Object.keys(callsDict);
   var words = cmnd.split("/");
   if (words[1] == 'select' && paused){
     var analytics = callsDict[parseInt(words[2])];
@@ -94,5 +96,13 @@ function parseCommand(cmnd){
   }
   if (words[1] == 'radio'){
     paused = !paused; //paused the backend from sending live update to the front end
+    if(paused){
+      var str = 'select';
+      for (var i = 0; i < keyArray.length; i++){
+        str += '/' + keyArray[i];
+      }
+      console.log(str);
+      web.send(str);
+    }
   }
 }

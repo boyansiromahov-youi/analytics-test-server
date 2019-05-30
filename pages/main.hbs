@@ -37,7 +37,7 @@
                         <div class="panel-heading">
                             Incoming Analytics
                         </div>
-                        <select id="selector" style="margin: 5px 0px" onchange="anaSelected()">
+                        <select id="selector" style="margin: 5px 0px;" onchange="anaSelected()" disabled>
                             {{#each calls}}
                                 <option>{{@key}}</option>
                             {{/each}}
@@ -46,17 +46,24 @@
                 </div>
             </div>
             <div class="col-lg-12">
-                <textarea id="Analytics" rows="4" cols="50" style="margin: 0px -15px; width: 705px; height: 450px; resize: none">
+                <textarea id="Analytics" rows="4" cols="50" style="margin: 0px -15px; width: 705px; height: 450px; resize: none" disabled=true>
                 </textarea>
             </div>
             <label class="switch">
                 Live update
-                <input type="checkbox" onclick="pause()">
+                <input type="checkbox" onclick="pause()" id="pause">
                 <span class="slider round">Pause</span>
             </label>
+            <button type="button" style="margin: 0px 5px" onclick="exportCur()">Export</button>
+            <button type="button" style="margin: 0px 5px" onclick="exportAll()">Export All</button>
     </div>  
 </body>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <script>
+    $.ajax;
+    function refresh(){
+        window.location.reload(true);  
+    }
     var paused = false;
     //User has selected a analytic call from the drop down.
     function anaSelected(){
@@ -69,12 +76,12 @@
         paused = !paused;
         ws.send('command/radio')
         if (paused){
-            document.getElementById("selector").style.visibility = 'hidden'
+            document.getElementById("selector").disabled=false
         }else
         {
-            document.getElementById("selector").style.visibility = 'visible'
+            document.getElementById("selector").disabled=true
         }
-        
+              
     }
     var ws = new WebSocket('ws://localhost:40510');
     // event emmited when connected
@@ -96,9 +103,35 @@
             var str = ev.data.replace("txt/" , '');
             document.getElementById("Analytics").textContent = str;
         }
+        else if(ev.data.includes("select/")){
+            var select = document.getElementById("selector");
+            console.log(ev.data);
+            var keys = ev.data.replace("select/" , '').split('/');
+            console.log(keys);
+            var first = select.firstElementChild;     
+            while (first != null)
+            {
+                console.log(first);
+                select.removeChild(first);
+                first = select.firstElementChild;
+            }
+
+            for (var i = 0; i<keys.length; i++){      
+                option = document.createElement("option");
+                option.text = keys[i];
+                select.appendChild(option);
+            }
+        }
         else{
             console.log('Unkown command: ' + ev.data);
         }
+    }
+
+    function exportCur(){
+         ws.send('command/exportCur/' + document.getElementById("selector").selectedIndex);
+    }
+    function exportAll(){
+         ws.send('exportAll');
     }
 </script>
 </html>
