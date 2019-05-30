@@ -128,10 +128,19 @@
     }
 
     function exportCur(){
-         ws.send('command/exportCur/' + document.getElementById("selector").selectedIndex);
+        console.log(document.getElementById("selector").selectedIndex);
+        if (paused){
+            var index = document.getElementById("selector").selectedIndex;
+            var opt = document.getElementById("selector").options[index];
+            ws.send('command/exportCur/' + opt.text);
+        }
+        else{
+            ws.send('command/exportCur/');
+        }
+        
     }
     function exportAll(){
-         ws.send('exportAll');
+         ws.send('command/exportAll');
     }
 </script>
 </html>

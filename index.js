@@ -75,6 +75,7 @@ wss.on('connection', function (ws) {
     //console.log('received: %s', message);
     if (message.includes('command')) {
       parseCommand(message);
+      console.log('recieved command: ' + message);
     } 
     
   })
@@ -88,6 +89,7 @@ wss.on('connection', function (ws) {
 })
 
 function parseCommand(cmnd){
+  const fs = require('fs');
   var keyArray = Object.keys(callsDict);
   var words = cmnd.split("/");
   if (words[1] == 'select' && paused){
@@ -104,5 +106,20 @@ function parseCommand(cmnd){
       console.log(str);
       web.send(str);
     }
+  }else if (words[1] == 'exportAll'){
+
+  }else if (words[1] == 'exportCur'){
+    var data;
+    if(!paused){
+      data = callsDict[Object.keys(callsDict)[Object.keys(callsDict).length - 1]]
+    }else{
+      data =  callsDict[words[2]]
+    }
+    console.log(data);
+    fs.writeFile('exports/export.txt', data, (err) => { 
+    // In case of a error throw err. 
+    if (err) throw err; 
+});
   }
+
 }
