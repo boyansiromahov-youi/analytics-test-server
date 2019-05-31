@@ -28,7 +28,6 @@ app.get("/", (request, response) => {
   response.render("home", {
     calls: callsDict
   });
-
 });
 
 app.use(express.static(__dirname + "/images"));
@@ -76,8 +75,7 @@ wss.on('connection', function (ws) {
     if (message.includes('command')) {
       parseCommand(message);
       console.log('recieved command: ' + message);
-    } 
-    
+    }  
   })
   setWS(ws);
   /*
@@ -108,10 +106,12 @@ function parseCommand(cmnd){
     }
   }else if (words[1] == 'exportAll'){
     var data = '';
+    var today = new Date();
+    var path = 'exports/' + today.getFullYear() + today.getMonth() + today.getDate() + today.getHours() + today.getMinutes() + ".txt";
     for (var key in callsDict){
       data += callsDict[key] + '\n \n \n \n';
     }
-    fs.writeFile('exports/export.txt', data, (err) => { 
+    fs.writeFile(path, data, (err) => { 
       // In case of a error throw err. 
       if (err) throw err; 
     });
@@ -123,10 +123,9 @@ function parseCommand(cmnd){
       data =  callsDict[words[2]]
     }
     console.log(data);
-    fs.writeFile('exports/export.txt', data, (err) => { 
-    // In case of a error throw err. 
-    if (err) throw err; 
-});
+    fs.writeFile(path, data, (err) => { 
+      // In case of a error throw err. 
+      if (err) throw err; 
+    });
   }
-
 }

@@ -80,8 +80,7 @@
         }else
         {
             document.getElementById("selector").disabled=true
-        }
-              
+        }       
     }
     var ws = new WebSocket('ws://localhost:40510');
     // event emmited when connected
@@ -137,7 +136,6 @@
         else{
             ws.send('command/exportCur/');
         }
-        
     }
     function exportAll(){
          ws.send('command/exportAll');
