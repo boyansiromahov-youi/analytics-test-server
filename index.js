@@ -1,6 +1,5 @@
 const path = require("path");
 const express = require("express");
-const exphbs = require("express-handlebars");
 var bodyParser = require("body-parser");
 const port = 3000;
 const app = express();
@@ -13,22 +12,18 @@ var expressWs = require('express-ws')(app);
 var paused = false;
 var web;
 
-app.engine(
-  ".hbs",
-  exphbs({
-    defaultLayout: "main",
-    extname: ".hbs",
-    layoutsDir: path.join(__dirname, "pages")
-  })
-);
-
-app.set("view engine", ".hbs");
-app.set("views", path.join(__dirname, "pages"));
 //set the template variables to be passed into home then into main.hbs 
 app.get("/", (request, response) => {
-  response.render("home", {
-    calls: callsDict
-  });
+  response.sendFile(__dirname + "/pages/main.html");
+});
+app.get("/adobe", (request, response) => {
+  response.sendFile(__dirname + "/pages/adobe.html");
+});
+app.get("/conviva", (request, response) => {
+  response.sendFile(__dirname + "/pages/conviva.html");
+});
+app.get("/google", (request, response) => {
+  response.sendFile(__dirname + "/pages/google.html");
 });
 
 app.use(express.static(__dirname + "/images"));
