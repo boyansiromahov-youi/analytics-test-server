@@ -11,6 +11,7 @@ var n = 0;
 var callsDict = {};
 var expressWs = require('express-ws')(app);
 var paused = false;
+var web;
 
 app.engine(
   ".hbs",
@@ -35,10 +36,12 @@ app.use(express.static(__dirname + "/pages"));
 
 //post event handler
 app.post("/*", function(request, response) {
-  //console.log(JSON.stringify(request.body).replace(",", "<br>"));
-  analytics = JSON.stringify(request.body)
-    .split(",")
-    .join("\n");
+  var call = JSON.stringify(request.body);
+  if(call.includes("adobe")){
+    analytics = parseAdobe(request.body);
+  }else if(call.includes("conviva")){
+    //TODO parse conviva
+  }
   n++;
   callsDict[n] = analytics;
   response.send('OK');
@@ -47,6 +50,15 @@ app.post("/*", function(request, response) {
   }
 });
 
+function parseAdobe(analytic){
+  var str = JSON.stringify(analytic)
+    .split(",")
+    .join("\n");
+  str = str.toString().replace(/"/g, " ");
+  str = str.replace("{", "").replace("}", "");
+  console.log(str);
+  return str;
+}
 function setWS(ws){
   web = ws;
 }
