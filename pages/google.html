@@ -47,17 +47,21 @@
                 </textarea>
             </div>
             <label class="switch">
-                Live Feed Off
+                Live Feed OFF
                 <input type="checkbox" onclick="pause()" id="pause">
                 <span class="slider round"></span>
             </label>
             <button type="button" style="margin: 0px 5px" onclick="exportCur()">Export</button>
             <button type="button" style="margin: 0px 5px" onclick="exportAll()">Export All</button>
+
+            <button type="button" id="prev" style="margin-left:259px"disabled  onclick="previous()">Previous</button>
+            <button type="button" id="next" style="margin: 0px 10px" disabled onclick="next()">Next</button>
     </div>  
 </body>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <script>
     $.ajax;
+    var keys;
     function refresh(){
         window.location.reload(true);  
     }
@@ -67,16 +71,19 @@
         var index = document.getElementById("selector").selectedIndex;
         var opt = document.getElementById("selector").options[index];
         ws.send('command/select/' + opt.text);
-        console.log(opt);
     }
     function pause(){
         paused = !paused;
-        ws.send('command/radio')
+        ws.send('command/radio') 
         if (paused){
             document.getElementById("selector").disabled=false
+            document.getElementById("next").disabled=false
+            document.getElementById("prev").disabled=false
         }else
         {
             document.getElementById("selector").disabled=true
+            document.getElementById("next").disabled=true
+            document.getElementById("prev").disabled=true
         }       
     }
     var ws = new WebSocket('ws://localhost:40510');
@@ -102,12 +109,10 @@
         else if(ev.data.includes("select/")){
             var select = document.getElementById("selector");
             console.log(ev.data);
-            var keys = ev.data.replace("select/" , '').split('/');
-            console.log(keys);
+            keys = ev.data.replace("select/" , '').split('/');
             var first = select.firstElementChild;     
             while (first != null)
             {
-                console.log(first);
                 select.removeChild(first);
                 first = select.firstElementChild;
             }
@@ -117,6 +122,7 @@
                 option.text = keys[i];
                 select.appendChild(option);
             }
+            document.getElementById("selector").selectedIndex = [keys.length - 1];
         }
         else{
             console.log('Unkown command: ' + ev.data);
@@ -124,18 +130,43 @@
     }
 
     function exportCur(){
-        console.log(document.getElementById("selector").selectedIndex);
-        if (paused){
+        console.log(isLastIndex);
+        if(isLastIndex){
+            var theSelect = document.getElementById("selector");
+            var lastValue = theSelect.options[theSelect.options.length - 1];
+            ws.send('command/exportCur/' + lastValue.text);
+        }else if (paused){
             var index = document.getElementById("selector").selectedIndex;
             var opt = document.getElementById("selector").options[index];
             ws.send('command/exportCur/' + opt.text);
-        }
-        else{
+        }else{
             ws.send('command/exportCur/');
         }
     }
     function exportAll(){
          ws.send('command/exportAll');
+    }
+    function next(){
+        var index = document.getElementById("selector").selectedIndex;
+        index++;
+        if(index > [document.getElementById("selector").options.length - 1]){
+            return;
+        }
+        document.getElementById("selector").selectedIndex = index;
+        var opt = document.getElementById("selector").options[index];
+        ws.send('command/select/' + opt.text);
+        isLastIndex = false;
+    }
+    function previous(){
+        var index = document.getElementById("selector").selectedIndex;
+        index --;
+        if(index < 0){
+            return;
+        }
+        document.getElementById("selector").selectedIndex = index;
+        var opt = document.getElementById("selector").options[index];
+        ws.send('command/select/' + opt.text);
+        isLastIndex = false;
     }
 </script>
 </html>
