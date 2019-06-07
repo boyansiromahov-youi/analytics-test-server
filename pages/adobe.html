@@ -58,18 +58,20 @@
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <script>
     $.ajax;
+    var isLastIndex = true;
     function refresh(){
         window.location.reload(true);  
     }
     var paused = false;
     //User has selected a analytic call from the drop down.
     function anaSelected(){
+        isLastIndex = false;
         var index = document.getElementById("selector").selectedIndex;
         var opt = document.getElementById("selector").options[index];
         ws.send('command/select/' + opt.text);
-        console.log(opt);
     }
     function pause(){
+        isLastIndex = true;
         paused = !paused;
         ws.send('command/radio')
         if (paused){
@@ -107,7 +109,6 @@
             var first = select.firstElementChild;     
             while (first != null)
             {
-                console.log(first);
                 select.removeChild(first);
                 first = select.firstElementChild;
             }
@@ -124,13 +125,18 @@
     }
 
     function exportCur(){
-        console.log(document.getElementById("selector").selectedIndex);
-        if (paused){
+        console.log(isLastIndex);
+        if(isLastIndex){
+            var theSelect = document.getElementById("selector");
+            console.log(theSelect);
+            var lastValue = theSelect.options[theSelect.options.length - 1];
+            console.log(lastValue);
+            ws.send('command/exportCur/' + lastValue.text);
+        }else if (paused){
             var index = document.getElementById("selector").selectedIndex;
             var opt = document.getElementById("selector").options[index];
             ws.send('command/exportCur/' + opt.text);
-        }
-        else{
+        }else{
             ws.send('command/exportCur/');
         }
     }
