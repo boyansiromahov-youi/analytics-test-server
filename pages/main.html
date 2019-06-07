@@ -23,14 +23,41 @@
 </head>
 <body>
     <div id="wrapper" style="margin: 0px 30px">
-            <button type="button" style="margin: 0px 5px" onclick="exportCur()">Export</button>
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1>
+                        <img src='youi.png' alt="youi" width='70' height='70' alt="You i"/>
+                        Analytics Testing Tool 
+                    </h1>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-6">
+                    <h5>HOW TO USE THIS TOOL:</h5>
+                    <p>
+                        To use this tool simply select the analytic type below. The textbox will fill with incoming
+                        calls. The live feed can be paused and the specific call can be selected from the drop down.
+                        At any point the call can be exported to /exports folder. You can also export all calls to a 
+                        file a /exports.
+                    </p>
+                </div>
+            </div>
+            <button type="button" onclick="goAdobe()">Adobe</button>
+            <button type="button" onclick="goConviva()">Conviva</button>
+            <button type="button" onclick="goGoogle()">Google</button>
     </div>  
 </body>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <script>
     $.ajax;
-    function exportCur(){
-        window.location.replace("http://127.0.0.1:3000/adobe")
+    function goAdobe(){
+        window.location.href = "http://127.0.0.1:3000/adobe";
     }
+    function goConviva(){
+        window.location.href = "http://127.0.0.1:3000/conviva";
+    }
+    function goGoogle(){
+        window.location.href = "http://127.0.0.1:3000/google";
+    }    
 </script>
 </html>

@@ -6,39 +6,65 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 var analytics;
-var n = 0;
-var callsDict = {};
+var a = 0,c = 0,g = 0;
+var adobeCalls = {};
+var convivaCalls = {};
+var googleCalls = {};
 var expressWs = require('express-ws')(app);
 var paused = false;
 var web;
+var cur;
 
 //set the template variables to be passed into home then into main.hbs 
 app.get("/", (request, response) => {
+  console.log("changed to main");
+  cur = "main";
   response.sendFile(__dirname + "/pages/main.html");
 });
 app.get("/adobe", (request, response) => {
+  console.log("changed to adobe");
+  cur = "adobe";
   response.sendFile(__dirname + "/pages/adobe.html");
 });
 app.get("/conviva", (request, response) => {
+  console.log("changed to conviva");
+  cur = "conviva";
   response.sendFile(__dirname + "/pages/conviva.html");
 });
 app.get("/google", (request, response) => {
+  console.log("changed to google");
+  cur = "google";
   response.sendFile(__dirname + "/pages/google.html");
 });
 
 app.use(express.static(__dirname + "/images"));
 app.use(express.static(__dirname + "/pages"));
 
-//post event handler
-app.post("/*", function(request, response) {
-  var call = JSON.stringify(request.body);
-  if(call.includes("adobe")){
-    analytics = parseAdobe(request.body);
-  }else if(call.includes("conviva")){
-    //TODO parse conviva
+app.post("/adobe\*", function(request, response) {
+  a++;
+  analytics = parseAdobe(request.body);
+  adobeCalls[a] = analytics;
+  response.send('OK');
+  if (!paused){ //dont send update call to the front end if live update is paused
+    web.send("txt/" + analytics);
   }
-  n++;
-  callsDict[n] = analytics;
+});
+
+app.post("/conviva\*", function(request, response) {
+  c++;
+  //analytics = parseAdobe(request.body); to do
+  convivaCalls[c] = analytics;
+  response.send('OK');
+  if (!paused){ //dont send update call to the front end if live update is paused
+    web.send("txt/" + analytics);
+  }
+});
+
+app.post("/google\*", function(request, response) {
+  var call = JSON.stringify(request.body);
+  g++;
+  //analytics = parseAdobe(request.body); to do
+  googleCalls[g] = analytics;
   response.send('OK');
   if (!paused){ //dont send update call to the front end if live update is paused
     web.send("txt/" + analytics);
@@ -51,21 +77,11 @@ function parseAdobe(analytic){
     .join("\n");
   str = str.toString().replace(/"/g, " ");
   str = str.replace("{", "").replace("}", "");
-  console.log(str);
   return str;
 }
 function setWS(ws){
   web = ws;
 }
-
-// app.post("/trutv/xboxone/adobe", function(request, response) {
-//   //console.log(response);
-//   console.log(JSON.stringify(request.body).replace(",", "<br>"));
-//   analytics = JSON.stringify(request.body)
-//     .split(",")
-//     .join("\n");
-// //TODO need to add check that websocket is active
-// });
 
 app.listen(port, err => {
   if (err) {
@@ -85,20 +101,31 @@ wss.on('connection', function (ws) {
     }  
   })
   setWS(ws);
-  /*
-  setInterval(
-    () => ws.send(analytics),
-    1000
-  )
-  */
 })
 
 function parseCommand(cmnd){
+  var today = new Date();
+  var path = 'exports/' + today.getFullYear() + '_' + today.getMonth() + '_' + today.getDate() + '_' + today.getHours() + '_' + today.getMinutes() + '_' + today.getMilliseconds() + ".txt";
+  var keyArray;
+  var valArray;
+  switch(cur){
+    case "adobe":
+      keyArray = Object.keys(adobeCalls);
+      valArray = adobeCalls;
+      break;
+    case "conviva":
+      keyArray = Object.keys(convivaCalls);
+      valArray = convivaCalls;
+      break;
+    case "google":
+      keyArray = Object.keys(googleCalls);
+      valArray = googleCalls;
+      break;
+  }
   const fs = require('fs');
-  var keyArray = Object.keys(callsDict);
   var words = cmnd.split("/");
   if (words[1] == 'select' && paused){
-    var analytics = callsDict[parseInt(words[2])];
+    var analytics = valArray[parseInt(words[2])];
     web.send("txt/" + analytics);
   }
   if (words[1] == 'radio'){
@@ -113,23 +140,20 @@ function parseCommand(cmnd){
     }
   }else if (words[1] == 'exportAll'){
     var data = '';
-    var today = new Date();
-    var path = 'exports/' + today.getFullYear() + today.getMonth() + today.getDate() + today.getHours() + today.getMinutes() + ".txt";
-    for (var key in callsDict){
-      data += callsDict[key] + '\n \n \n \n';
+    for (var key in valArray){
+      data += valArray[key] + '\n \n \n \n';
     }
     fs.writeFile(path, data, (err) => { 
       // In case of a error throw err. 
       if (err) throw err; 
     });
   }else if (words[1] == 'exportCur'){
-    var data;
+    var data = '';
     if(!paused){
-      data = callsDict[Object.keys(callsDict)[Object.keys(callsDict).length - 1]]
+      data = valArray[Object.keys(valArray)[Object.keys(valArray).length - 1]]
     }else{
-      data =  callsDict[words[2]]
+      data =  valArray[words[2]]
     }
-    console.log(data);
     fs.writeFile(path, data, (err) => { 
       // In case of a error throw err. 
       if (err) throw err; 
