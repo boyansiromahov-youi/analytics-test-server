@@ -106,3 +106,14 @@ function previous(){
     ws.send('command/select/' + opt.text);
     isLastIndex = false;
 }
+
+function clearAll(){
+    var select = document.getElementById("selector");
+    ws.send('command/clearAll');
+    var first = select.firstElementChild;     
+    while (first != null)
+    {
+        select.removeChild(first);
+        first = select.firstElementChild;
+    }
+}

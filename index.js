@@ -130,13 +130,12 @@ function parseCommand(cmnd){
     web.send("txt/" + analytics);
   }
   if (words[1] == 'radio'){
-    paused = !paused; //paused the backend from sending live update to the front end
+    paused = !paused; //pause the backend from sending live update to the front end
     if(paused){
       var str = 'select';
       for (var i = 0; i < keyArray.length; i++){
         str += '/' + keyArray[i];
       }
-      console.log(str);
       web.send(str);
     }
   }else if (words[1] == 'exportAll'){
@@ -159,5 +158,10 @@ function parseCommand(cmnd){
       // In case of a error throw err. 
       if (err) throw err; 
     });
+  }else if (words[1] == 'clearAll'){
+    valArray = {};
+    keyArray.length = 0;
+    web.send("txt/" + "");
+    console.log(keyArray.length);
   }
 }
