@@ -39,6 +39,7 @@ app.get("/google", (request, response) => {
 
 app.use(express.static(__dirname + "/images"));
 app.use(express.static(__dirname + "/pages"));
+app.use(express.static(__dirname + "/scripts"));
 
 app.post("/adobe\*", function(request, response) {
   a++;
