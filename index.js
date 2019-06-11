@@ -37,10 +37,12 @@ app.get("/google", (request, response) => {
   response.sendFile(__dirname + "/pages/google.html");
 });
 
+//static directories that the app is using
 app.use(express.static(__dirname + "/images"));
 app.use(express.static(__dirname + "/pages"));
 app.use(express.static(__dirname + "/scripts"));
 
+//recieve post events that start with /adobe
 app.post("/adobe\*", function(request, response) {
   a++;
   analytics = parseAdobe(request.body);
@@ -51,6 +53,7 @@ app.post("/adobe\*", function(request, response) {
   }
 });
 
+//recieve post events that start with /conviva
 app.post("/conviva\*", function(request, response) {
   c++;
   //analytics = parseAdobe(request.body); to do
@@ -61,6 +64,7 @@ app.post("/conviva\*", function(request, response) {
   }
 });
 
+//recieve post events that start with /google
 app.post("/google\*", function(request, response) {
   var call = JSON.stringify(request.body);
   g++;
@@ -80,6 +84,7 @@ function parseAdobe(analytic){
   str = str.replace("{", "").replace("}", "");
   return str;
 }
+
 function setWS(ws){
   web = ws;
 }

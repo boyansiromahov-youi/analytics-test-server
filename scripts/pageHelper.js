@@ -4,12 +4,14 @@ function refresh(){
     window.location.reload(true);  
 }
 var paused = false;
+
 //User has selected a analytic call from the drop down.
 function anaSelected(){
     var index = document.getElementById("selector").selectedIndex;
     var opt = document.getElementById("selector").options[index];
     ws.send('command/select/' + opt.text);
 }
+
 function pause(){
     paused = !paused;
     ws.send('command/radio') 
